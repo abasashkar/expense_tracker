@@ -14,4 +14,8 @@ class SettingsService {
   Future<void> setMonthlyLimit(double limit) async {
     await _prefs.setDouble(PrefsConstants.monthlyLimit, limit);
   }
+
+  Future<void> updateNickname(String nickname) async {
+    await _prefs.setString(PrefsConstants.nickname, nickname);
+  }
 }

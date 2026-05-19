@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:expense_tracker/core/services/settings_service.dart';
+import 'package:expense_tracker/injection.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/core/widgets/app_bottom_nav.dart';
 import 'package:expense_tracker/features/categories/presentation/bloc/category_bloc.dart';
@@ -30,13 +31,16 @@ class HomeShellPage extends StatefulWidget {
 class _HomeShellPageState extends State<HomeShellPage> {
   AppNavTab _activeTab = AppNavTab.dashboard;
   bool _showAllTransactions = false;
+  late String _nickname;
 
   @override
   void initState() {
     super.initState();
+    _nickname = widget.nickname;
     context.read<TransactionBloc>().add(const TransactionLoadDashboardRequested());
     context.read<CategoryBloc>().add(const CategoryLoadRequested());
     context.read<SyncBloc>().add(const SyncPendingStatusRequested());
+    AppInjection.requestNotificationPermissions();
   }
 
   void _refreshSyncPendingStatus() {
@@ -110,7 +114,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
               )
             : switch (_activeTab) {
                 AppNavTab.dashboard => DashboardPage(
-                    nickname: widget.nickname,
+                    nickname: _nickname,
                     settingsService: widget.settingsService,
                     onViewAllTransactions: () {
                       setState(() => _showAllTransactions = true);
@@ -121,8 +125,11 @@ class _HomeShellPageState extends State<HomeShellPage> {
                   ),
                 AppNavTab.sync => const PendingSyncPage(),
                 AppNavTab.profile => ProfilePage(
-                    nickname: widget.nickname,
+                    nickname: _nickname,
                     settingsService: widget.settingsService,
+                    onNicknameChanged: (name) {
+                      setState(() => _nickname = name);
+                    },
                   ),
               },
       ),

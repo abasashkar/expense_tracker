@@ -8,22 +8,17 @@ import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/injection.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    if (kReleaseMode) {
-      debugPrint('FlutterError: ${details.exceptionAsString()}');
-    }
-  };
-
-  PlatformDispatcher.instance.onError = (error, stack) {
-    debugPrint('Uncaught async error: $error\n$stack');
-    return true;
-  };
-
   await runZonedGuarded(
     () async {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+        if (kReleaseMode) {
+          debugPrint('FlutterError: ${details.exceptionAsString()}');
+        }
+      };
+
       try {
         await AppInjection.init();
         runApp(const ExpenseTrackerApp());
@@ -36,6 +31,11 @@ Future<void> main() async {
       debugPrint('Zone error: $error\n$stack');
     },
   );
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Uncaught async error: $error\n$stack');
+    return true;
+  };
 }
 
 /// Shown when critical startup (e.g. database) fails instead of a blank screen.

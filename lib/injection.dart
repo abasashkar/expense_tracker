@@ -46,6 +46,7 @@ class AppInjection {
     apiClient = ApiClient();
     settingsService = SettingsService(prefs);
     notificationsService = NotificationsService();
+    await notificationsService.initialize();
     await DatabaseHelper.instance.database;
 
     final authLocalDataSource = AuthLocalDataSourceImpl(prefs);
@@ -89,12 +90,12 @@ class AppInjection {
       ..add(const SyncPendingStatusRequested());
   }
 
-  /// Non-blocking init for notifications (can fail on some release devices).
-  static Future<void> initDeferredServices() async {
+  /// Requests notification permission after the Activity is available.
+  static Future<void> requestNotificationPermissions() async {
     try {
-      await notificationsService.init();
+      await notificationsService.requestPermissions();
     } catch (error, stack) {
-      debugPrint('Notifications init failed: $error\n$stack');
+      debugPrint('Notification permission request failed: $error\n$stack');
     }
   }
 }

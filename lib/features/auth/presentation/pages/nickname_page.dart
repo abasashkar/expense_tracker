@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:expense_tracker/features/auth/presentation/widgets/nickname_field.dart';
 
 class NicknamePage extends StatefulWidget {
   const NicknamePage({super.key});
@@ -20,7 +21,7 @@ class _NicknamePageState extends State<NicknamePage> {
     super.dispose();
   }
 
-  bool get _isValid => _nicknameController.text.trim().length >= 2;
+  bool get _isValid => NicknameField.isValidNickname(_nicknameController.text);
 
   void _submit() {
     if (!_isValid) return;
@@ -37,6 +38,7 @@ class _NicknamePageState extends State<NicknamePage> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -55,45 +57,51 @@ class _NicknamePageState extends State<NicknamePage> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Choose a nickname for your account.',
+                'This name stays only on your device.',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
+                  height: 1.4,
                 ),
               ),
               const SizedBox(height: 32),
-              TextField(
+              NicknameField(
                 controller: _nicknameController,
                 autofocus: true,
-                style: const TextStyle(color: AppTheme.textPrimary),
                 onChanged: (_) => setState(() {}),
-                onSubmitted: (_) => _submit(),
-                decoration: InputDecoration(
-                  hintText: 'Eg: Johnnnie',
-                  filled: true,
-                  fillColor: AppTheme.surface,
-                  suffixIcon: _isValid
-                      ? const Icon(Icons.check_circle, color: AppTheme.success)
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+                onSubmitted: _submit,
               ),
               const Spacer(),
-              ElevatedButton(
-                onPressed: (!_isValid || isSubmitting) ? null : _submit,
-                child: isSubmitting
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Continue'),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: (!_isValid || isSubmitting) ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    disabledBackgroundColor: const Color(0xFF1A2340),
+                    disabledForegroundColor: const Color(0xFF6B7280),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: isSubmitting
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Continue'),
+                ),
               ),
               const SizedBox(height: 16),
             ],

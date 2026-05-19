@@ -6,7 +6,9 @@ import 'package:shimmer/shimmer.dart';
 import 'package:expense_tracker/core/services/settings_service.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/core/utils/currency_formatter.dart';
+import 'package:expense_tracker/app.dart';
 import 'package:expense_tracker/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:expense_tracker/features/auth/presentation/widgets/nickname_field.dart';
 import 'package:expense_tracker/features/categories/presentation/bloc/category_bloc.dart';
 import 'package:expense_tracker/features/sync/presentation/bloc/sync_bloc.dart';
 import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_bloc.dart';
@@ -16,16 +18,19 @@ class ProfilePage extends StatefulWidget {
     super.key,
     required this.nickname,
     required this.settingsService,
+    required this.onNicknameChanged,
   });
 
   final String nickname;
   final SettingsService settingsService;
+  final ValueChanged<String> onNicknameChanged;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  late TextEditingController _nicknameController;
   late TextEditingController _categoryController;
   late TextEditingController _limitController;
   late double _currentLimit;
@@ -33,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _nicknameController = TextEditingController(text: widget.nickname);
     _categoryController = TextEditingController();
     _currentLimit = widget.settingsService.monthlyLimit;
     _limitController = TextEditingController(
@@ -42,10 +48,44 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
+  void didUpdateWidget(covariant ProfilePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.nickname != widget.nickname &&
+        _nicknameController.text != widget.nickname) {
+      _nicknameController.text = widget.nickname;
+    }
+  }
+
+  @override
   void dispose() {
+    _nicknameController.dispose();
     _categoryController.dispose();
     _limitController.dispose();
     super.dispose();
+  }
+
+  bool get _isNicknameValid =>
+      NicknameField.isValidNickname(_nicknameController.text);
+
+  Future<void> _saveNickname() async {
+    if (!_isNicknameValid) {
+      final messenger = ExpenseTrackerApp.scaffoldMessengerKey.currentState;
+      messenger?.showSnackBar(
+        const SnackBar(
+          content: Text('Nickname must be at least 2 characters'),
+          backgroundColor: AppTheme.danger,
+        ),
+      );
+      return;
+    }
+    final name = _nicknameController.text.trim();
+    await widget.settingsService.updateNickname(name);
+    widget.onNicknameChanged(name);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nickname updated')),
+      );
+    }
   }
 
   Future<void> _setLimit() async {
@@ -100,14 +140,41 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const SizedBox(height: 10),
-          _darkField(
-            child: Text(
-              widget.nickname,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
-                fontSize: 15,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: NicknameField(
+                  controller: _nicknameController,
+                  onChanged: (_) => setState(() {}),
+                  onSubmitted: _saveNickname,
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Material(
+                color: _isNicknameValid
+                    ? AppTheme.primary
+                    : const Color(0xFF1A2340),
+                borderRadius: BorderRadius.circular(14),
+                child: InkWell(
+                  onTap: _isNicknameValid ? _saveNickname : null,
+                  borderRadius: BorderRadius.circular(14),
+                  child: SizedBox(
+                    width: 52,
+                    height: 52,
+                    child: Center(
+                      child: Icon(
+                        Icons.edit_outlined,
+                        color: _isNicknameValid
+                            ? Colors.white
+                            : const Color(0xFF6B7280),
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 28),
           const Text(
