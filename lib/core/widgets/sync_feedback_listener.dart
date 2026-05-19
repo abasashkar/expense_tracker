@@ -6,7 +6,6 @@ import 'package:expense_tracker/features/categories/presentation/bloc/category_b
 import 'package:expense_tracker/features/sync/presentation/bloc/sync_bloc.dart';
 import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_bloc.dart';
 
-/// Shows sync progress / result snackbars and refreshes data after a successful sync.
 class SyncFeedbackListener extends StatelessWidget {
   const SyncFeedbackListener({
     super.key,
@@ -44,9 +43,9 @@ class SyncFeedbackListener extends StatelessWidget {
             context.read<TransactionBloc>()
               ..add(const TransactionRefreshAfterSyncRequested())
               ..add(const TransactionLoadUnsyncedRequested());
-            context.read<CategoryBloc>().add(
-                  const CategoryRefreshAfterSyncRequested(),
-                );
+            context.read<CategoryBloc>()
+              ..add(const CategoryRefreshAfterSyncRequested())
+              ..add(const CategoryLoadUnsyncedRequested());
             context.read<SyncBloc>().add(const SyncPendingStatusRequested());
             _showSnackBar(
               const SnackBar(

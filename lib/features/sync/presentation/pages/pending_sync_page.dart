@@ -20,12 +20,10 @@ class PendingSyncPage extends StatelessWidget {
           builder: (context, catState) {
             return BlocBuilder<TransactionBloc, TransactionState>(
               builder: (context, txState) {
-                final unsyncedCategories = catState.categories
-                    .where((c) => !c.isSynced)
-                    .toList();
+                final unsyncedCategories = catState.unsyncedCategories;
                 final unsyncedTransactions = txState.unsyncedTransactions;
                 final isLoading = (catState.status == CategoryStatus.loading &&
-                        catState.categories.isEmpty) ||
+                        catState.unsyncedCategories.isEmpty) ||
                     (txState.status == TransactionStatus.loading &&
                         txState.unsyncedTransactions.isEmpty);
 

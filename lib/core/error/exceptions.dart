@@ -1,7 +1,8 @@
 class ServerException implements Exception {
-  ServerException([this.message = 'Server error occurred']);
+  ServerException([this.message = 'Server error occurred', this.statusCode]);
 
   final String message;
+  final int? statusCode;
 }
 
 class CacheException implements Exception {

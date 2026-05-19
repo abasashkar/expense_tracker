@@ -62,14 +62,20 @@ class _ProfilePageState extends State<ProfilePage> {
   void _onCategoryDeleted() {
     final txBloc = context.read<TransactionBloc>();
     txBloc.add(const TransactionLoadDashboardRequested());
+    txBloc.add(const TransactionLoadUnsyncedRequested());
     if (txBloc.state.allTransactions.isNotEmpty) {
       txBloc.add(const TransactionLoadAllRequested());
     }
+    context.read<SyncBloc>().add(const SyncPendingStatusRequested());
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return BlocListener<CategoryBloc, CategoryState>(
+      listenWhen: (previous, current) =>
+          previous.categories.length > current.categories.length,
+      listener: (_, __) => _onCategoryDeleted(),
+      child: SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,12 +215,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 52,
                         child: ElevatedButton(
                           onPressed: () {
+                            final name = _categoryController.text.trim();
+                            if (name.isEmpty) return;
                             context.read<CategoryBloc>().add(
-                                  CategoryAddRequested(
-                                    _categoryController.text,
-                                  ),
+                                  CategoryAddRequested(name),
                                 );
                             _categoryController.clear();
+                            context
+                                .read<SyncBloc>()
+                                .add(const SyncPendingStatusRequested());
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,
@@ -247,12 +256,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {
-                                context.read<CategoryBloc>().add(
-                                      CategoryDeleteRequested(cat.id),
-                                    );
-                                _onCategoryDeleted();
-                              },
+                              onTap: () => context.read<CategoryBloc>().add(
+                                    CategoryDeleteRequested(cat.id),
+                                  ),
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
@@ -390,6 +396,7 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
         ],
+      ),
       ),
     );
   }

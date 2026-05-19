@@ -23,6 +23,24 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
         [];
   }
 
+  /// POST /transactions/add/ returns `{ "transactions": [{ "id": "..." }, ...] }`.
+  List<String> _parseSyncedTransactionIds(Map<String, dynamic> json) {
+    final items = json['transactions'] as List<dynamic>?;
+    if (items == null || items.isEmpty) {
+      return _parseIdList(json, 'synced_ids');
+    }
+    return items
+        .map((e) {
+          if (e is Map) {
+            return e['id']?.toString();
+          }
+          return null;
+        })
+        .whereType<String>()
+        .where((id) => id.isNotEmpty)
+        .toList();
+  }
+
   bool _isSuccess(Map<String, dynamic> json) =>
       json['status']?.toString().toLowerCase() == 'success';
 
@@ -63,19 +81,21 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
     if (categories.isEmpty) return [];
     final synced = <String>[];
     for (final c in categories) {
-      final json = await _apiClient.postForm(
-        ApiConstants.categoriesAdd,
-        fields: {
-          'category_id': c.id,
-          'name': c.name,
-        },
-        requiresAuth: true,
-      );
-      if (!_isSuccess(json)) {
-        throw ServerException('Failed to sync categories');
+      try {
+        final json = await _apiClient.postForm(
+          ApiConstants.categoriesAdd,
+          fields: {
+            'category_id': c.id,
+            'name': c.name,
+          },
+          requiresAuth: true,
+        );
+        if (!_isSuccess(json)) continue;
+        final ids = _parseIdList(json, 'synced_ids');
+        synced.addAll(ids.isNotEmpty ? ids : [c.id]);
+      } on ServerException {
+        continue;
       }
-      final ids = _parseIdList(json, 'synced_ids');
-      synced.addAll(ids.isNotEmpty ? ids : [c.id]);
     }
     return synced;
   }
@@ -95,7 +115,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
                 'id': t.id,
                 'amount': t.amount,
                 'note': t.note,
-                'type': t.isCredit ? 'credit' : 'debit',
+                'type': t.isCredit ? 'Credit' : 'Debit',
                 'category_id': t.categoryId,
                 'timestamp': _formatTimestamp(t.timestamp),
               },
@@ -111,7 +131,7 @@ class SyncRemoteDataSourceImpl implements SyncRemoteDataSource {
       );
     }
 
-    final syncedIds = _parseIdList(json, 'synced_ids');
+    final syncedIds = _parseSyncedTransactionIds(json);
     if (syncedIds.isEmpty) {
       throw ServerException('Failed to sync transactions');
     }

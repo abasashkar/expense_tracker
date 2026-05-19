@@ -35,6 +35,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
   void initState() {
     super.initState();
     context.read<TransactionBloc>().add(const TransactionLoadDashboardRequested());
+    context.read<CategoryBloc>().add(const CategoryLoadRequested());
     context.read<SyncBloc>().add(const SyncPendingStatusRequested());
   }
 
@@ -43,6 +44,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
   }
 
   void _openAddTransaction() {
+    context.read<CategoryBloc>().add(const CategoryLoadRequested());
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppTheme.background,
@@ -66,7 +68,9 @@ class _HomeShellPageState extends State<HomeShellPage> {
         txBloc.add(const TransactionLoadDashboardRequested());
       case AppNavTab.sync:
         txBloc.add(const TransactionLoadUnsyncedRequested());
-        context.read<CategoryBloc>().add(const CategoryLoadRequested());
+        context.read<CategoryBloc>()
+          ..add(const CategoryLoadUnsyncedRequested())
+          ..add(const CategoryLoadRequested());
       case AppNavTab.profile:
         context.read<CategoryBloc>().add(const CategoryLoadRequested());
     }
@@ -75,10 +79,23 @@ class _HomeShellPageState extends State<HomeShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TransactionBloc, TransactionState>(
-      listenWhen: (previous, current) =>
-          previous.unsyncedTransactions != current.unsyncedTransactions,
-      listener: (_, __) => _refreshSyncPendingStatus(),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<TransactionBloc, TransactionState>(
+          listenWhen: (previous, current) =>
+              previous.unsyncedTransactions != current.unsyncedTransactions ||
+              previous.recentTransactions.length !=
+                  current.recentTransactions.length ||
+              previous.allTransactions.length != current.allTransactions.length,
+          listener: (_, __) => _refreshSyncPendingStatus(),
+        ),
+        BlocListener<CategoryBloc, CategoryState>(
+          listenWhen: (previous, current) =>
+              previous.unsyncedCategories != current.unsyncedCategories ||
+              previous.categories.length != current.categories.length,
+          listener: (_, __) => _refreshSyncPendingStatus(),
+        ),
+      ],
       child: Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(

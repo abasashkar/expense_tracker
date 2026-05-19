@@ -11,6 +11,10 @@ class CategoryLoadRequested extends CategoryEvent {
   const CategoryLoadRequested();
 }
 
+class CategoryLoadUnsyncedRequested extends CategoryEvent {
+  const CategoryLoadUnsyncedRequested();
+}
+
 class CategoryAddRequested extends CategoryEvent {
   const CategoryAddRequested(this.name);
 

@@ -152,6 +152,7 @@ class ApiClient {
         response.statusCode >= 400
             ? 'Request failed (${response.statusCode})'
             : 'Invalid response from server: $snippet',
+        response.statusCode,
       );
     }
 
@@ -171,7 +172,7 @@ class ApiClient {
         decoded['messege']?.toString() ??
         decoded['error']?.toString() ??
         'Request failed (${response.statusCode})';
-    throw ServerException(message);
+    throw ServerException(message, response.statusCode);
   }
 
   void dispose() {

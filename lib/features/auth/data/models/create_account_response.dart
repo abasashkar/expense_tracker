@@ -14,5 +14,5 @@ class CreateAccountResponse {
   final String status;
   final String token;
 
-  bool get isSuccess => status == 'success';
+  bool get isSuccess => status.toLowerCase() == 'success';
 }

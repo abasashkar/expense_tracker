@@ -105,9 +105,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     final recent = await _repository.getRecentTransactions(limit: 10);
     final totals = await _repository.getTotals();
     final monthly = await _repository.getMonthlyDebitTotal();
-    final all = state.allTransactions.isNotEmpty
-        ? await _repository.getAllTransactions()
-        : null;
+    final all = state.allTransactions.isNotEmpty ? await _repository.getAllTransactions() : null;
     final unsynced = await _repository.getUnsyncedTransactions();
 
     if (recent.failure != null || totals.failure != null) return;
@@ -173,6 +171,11 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     if (event.type == TransactionType.debit) {
       await _budgetLimitService.onDebitTransactionAdded(event.amount);
     }
+
+    final unsyncedResult = await _repository.getUnsyncedTransactions();
+    if (unsyncedResult.data != null) {
+      emit(state.copyWith(unsyncedTransactions: unsyncedResult.data!));
+    }
   }
 
   Future<void> _onDelete(
@@ -190,12 +193,9 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       if (removed != null) break;
     }
 
-    final updatedRecent =
-        state.recentTransactions.where((t) => t.id != event.id).toList();
-    final updatedAll =
-        state.allTransactions.where((t) => t.id != event.id).toList();
-    final updatedUnsynced =
-        state.unsyncedTransactions.where((t) => t.id != event.id).toList();
+    final updatedRecent = state.recentTransactions.where((t) => t.id != event.id).toList();
+    final updatedAll = state.allTransactions.where((t) => t.id != event.id).toList();
+    final updatedUnsynced = state.unsyncedTransactions.where((t) => t.id != event.id).toList();
 
     var income = state.totalIncome;
     var expense = state.totalExpense;
@@ -221,9 +221,13 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       monthlyDebit: monthlyDebit < 0 ? 0 : monthlyDebit,
     ));
 
-    await _repository.deleteTransaction(event.id);
+    final deleteResult = await _repository.deleteTransaction(event.id);
+    if (deleteResult.failure != null) {
+      add(const TransactionRefreshAfterSyncRequested());
+      emit(state.copyWith(errorMessage: deleteResult.failure!.message));
+      return;
+    }
 
-    // Totals from DB so deletes stay accurate (PDF: only non-deleted rows).
     add(const TransactionRefreshAfterSyncRequested());
   }
 
