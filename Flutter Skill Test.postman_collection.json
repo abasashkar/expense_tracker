@@ -1,0 +1,282 @@
+{
+  "info": {
+    "_postman_id": "5b4ea497-a11b-492a-9205-59497698424f",
+    "name": "Flutter Skill Test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "31720854",
+    "_collection_link": "https://go.postman.co/collection/31720854-5b4ea497-a11b-492a-9205-59497698424f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Create Account",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "phone",
+              "value": "1111111111",
+              "type": "text",
+              "uuid": "5e1c8c7c-25a0-4671-ad44-13f71511e508"
+            },
+            {
+              "key": "nickname",
+              "value": "Test",
+              "type": "text",
+              "uuid": "7f14bd6e-da9c-41f2-b0a4-106dc1942e21"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseurl}}auth/create-account/",
+          "host": [
+            "{{baseurl}}auth"
+          ],
+          "path": [
+            "create-account",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Otp",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "phone",
+              "value": "1111111111",
+              "type": "text",
+              "uuid": "4eaa4177-4ff8-4709-9878-3c6cb4a88abd"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseurl}}auth/send-otp/",
+          "host": [
+            "{{baseurl}}auth"
+          ],
+          "path": [
+            "send-otp",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Categories",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseurl}}categories/",
+          "host": [
+            "{{baseurl}}categories"
+          ],
+          "path": [
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Category",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "name",
+              "value": "test category 4",
+              "type": "text",
+              "uuid": "c8619ee7-1928-4ff8-9050-a006845848dc"
+            },
+            {
+              "key": "category_id",
+              "value": "4576ytyre",
+              "type": "text",
+              "uuid": "97fe84c7-5733-45a5-808d-a0a35f6ec368"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseurl}}categories/add/",
+          "host": [
+            "{{baseurl}}categories"
+          ],
+          "path": [
+            "add",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Category",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "category_id",
+              "value": "1",
+              "type": "text",
+              "uuid": "31cd4975-cf3a-4cae-944c-149fba84542a"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseurl}}categories/delete/",
+          "host": [
+            "{{baseurl}}categories"
+          ],
+          "path": [
+            "delete",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Transactions",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseurl}}transactions/",
+          "host": [
+            "{{baseurl}}transactions"
+          ],
+          "path": [
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Transactions Add",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"transactions\": [\r\n    {\r\n      \"amount\": 50,\r\n      \"note\": \"Travel\",\r\n      \"category_id\": \"2\",\r\n      \"type\": \"Credit\",\r\n      \"timestamp\": \"2023-10-27 10:00:00\"\r\n    },\r\n    {\r\n      \"amount\": 120.5,\r\n      \"note\": \"Lunch\",\r\n      \"category_id\": \"2\",\r\n      \"type\": \"Debit\",\r\n      \"timestamp\": \"2023-10-27 13:30:00\"\r\n    }\r\n    \r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseurl}}transactions/add/",
+          "host": [
+            "{{baseurl}}transactions"
+          ],
+          "path": [
+            "add",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Transaction Delete",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "{{baseurl}}transactions/delete/",
+          "host": [
+            "{{baseurl}}transactions"
+          ],
+          "path": [
+            "delete",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
