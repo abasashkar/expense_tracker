@@ -6,11 +6,24 @@ import 'package:expense_tracker/core/widgets/sync_feedback_listener.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/auth_gate_page.dart';
 import 'package:expense_tracker/injection.dart';
 
-class ExpenseTrackerApp extends StatelessWidget {
+class ExpenseTrackerApp extends StatefulWidget {
   const ExpenseTrackerApp({super.key});
 
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
+
+  @override
+  State<ExpenseTrackerApp> createState() => _ExpenseTrackerAppState();
+}
+
+class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppInjection.initDeferredServices();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +38,11 @@ class ExpenseTrackerApp extends StatelessWidget {
         title: 'Expense Tracker',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
-        scaffoldMessengerKey: scaffoldMessengerKey,
+        scaffoldMessengerKey: ExpenseTrackerApp.scaffoldMessengerKey,
         home: const AuthGatePage(),
         builder: (context, child) {
           return SyncFeedbackListener(
-            messengerKey: scaffoldMessengerKey,
+            messengerKey: ExpenseTrackerApp.scaffoldMessengerKey,
             child: child ?? const SizedBox.shrink(),
           );
         },

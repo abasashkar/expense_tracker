@@ -61,6 +61,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final isLastPage = _currentPage == _pages.length - 1;
     final page = _pages[_currentPage];
 
+    final cacheWidth = (MediaQuery.sizeOf(context).width *
+            MediaQuery.devicePixelRatioOf(context))
+        .round();
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Stack(
@@ -71,6 +75,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
+            cacheWidth: cacheWidth > 0 ? cacheWidth : null,
           ),
           Container(
             decoration: BoxDecoration(

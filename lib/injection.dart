@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:expense_tracker/core/database/database_helper.dart';
 import 'package:expense_tracker/core/network/api_client.dart';
 import 'package:expense_tracker/core/notifications/notifications_service.dart';
@@ -44,7 +46,6 @@ class AppInjection {
     apiClient = ApiClient();
     settingsService = SettingsService(prefs);
     notificationsService = NotificationsService();
-    await notificationsService.init();
     await DatabaseHelper.instance.database;
 
     final authLocalDataSource = AuthLocalDataSourceImpl(prefs);
@@ -86,5 +87,14 @@ class AppInjection {
     );
     syncBloc = SyncBloc(repository: syncRepository)
       ..add(const SyncPendingStatusRequested());
+  }
+
+  /// Non-blocking init for notifications (can fail on some release devices).
+  static Future<void> initDeferredServices() async {
+    try {
+      await notificationsService.init();
+    } catch (error, stack) {
+      debugPrint('Notifications init failed: $error\n$stack');
+    }
   }
 }
