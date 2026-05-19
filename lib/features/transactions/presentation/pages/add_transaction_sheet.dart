@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:expense_tracker/app.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/presentation/bloc/category_bloc.dart';
@@ -28,14 +29,44 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    final messenger = ExpenseTrackerApp.scaffoldMessengerKey.currentState;
+    if (messenger == null) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: AppTheme.danger,
+        ),
+      );
+  }
+
   void _submit(List<Category> categories) {
-    final amount = double.tryParse(_amountController.text.trim());
-    if (amount == null || amount <= 0) return;
-    if (_noteController.text.trim().isEmpty) return;
+    final amountText = _amountController.text.trim();
+    if (amountText.isEmpty) {
+      _showError('Please enter an amount');
+      return;
+    }
+
+    final amount = double.tryParse(amountText);
+    if (amount == null || amount <= 0) {
+      _showError('Please enter a valid amount');
+      return;
+    }
+
+    if (_noteController.text.trim().isEmpty) {
+      _showError('Please enter a note');
+      return;
+    }
+
     if (_categoryId == null && categories.isNotEmpty) {
       _categoryId = categories.first.id;
     }
-    if (_categoryId == null) return;
+    if (_categoryId == null) {
+      _showError('Please add a category in Profile first');
+      return;
+    }
 
     context.read<TransactionBloc>().add(
           TransactionAddRequested(
