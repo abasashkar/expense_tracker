@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:expense_tracker/core/services/settings_service.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/core/widgets/app_bottom_nav.dart';
 import 'package:expense_tracker/features/categories/presentation/bloc/category_bloc.dart';
@@ -16,9 +17,11 @@ class HomeShellPage extends StatefulWidget {
   const HomeShellPage({
     super.key,
     required this.nickname,
+    required this.settingsService,
   });
 
   final String nickname;
+  final SettingsService settingsService;
 
   @override
   State<HomeShellPage> createState() => _HomeShellPageState();
@@ -91,6 +94,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
             : switch (_activeTab) {
                 AppNavTab.dashboard => DashboardPage(
                     nickname: widget.nickname,
+                    settingsService: widget.settingsService,
                     onViewAllTransactions: () {
                       setState(() => _showAllTransactions = true);
                       context
@@ -101,6 +105,7 @@ class _HomeShellPageState extends State<HomeShellPage> {
                 AppNavTab.sync => const PendingSyncPage(),
                 AppNavTab.profile => ProfilePage(
                     nickname: widget.nickname,
+                    settingsService: widget.settingsService,
                   ),
               },
       ),

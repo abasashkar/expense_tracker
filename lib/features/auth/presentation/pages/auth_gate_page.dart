@@ -8,6 +8,7 @@ import 'package:expense_tracker/features/auth/presentation/pages/onboarding_page
 import 'package:expense_tracker/features/auth/presentation/pages/otp_verification_page.dart';
 import 'package:expense_tracker/features/auth/presentation/pages/phone_login_page.dart';
 import 'package:expense_tracker/features/dashboard/presentation/pages/home_shell_page.dart';
+import 'package:expense_tracker/injection.dart';
 
 class AuthGatePage extends StatelessWidget {
   const AuthGatePage({super.key});
@@ -52,6 +53,7 @@ class AuthGatePage extends StatelessWidget {
           case AuthStatus.authenticated:
             return HomeShellPage(
               nickname: state.session?.nickname ?? '',
+              settingsService: AppInjection.settingsService,
             );
         }
       },

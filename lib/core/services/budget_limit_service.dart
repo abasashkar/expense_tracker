@@ -1,15 +1,18 @@
-import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/core/notifications/notifications_service.dart';
+import 'package:expense_tracker/core/services/settings_service.dart';
 import 'package:expense_tracker/features/transactions/domain/repositories/transaction_repository.dart';
 
 /// Fires a local notification when a new debit pushes monthly spending over the limit.
 class BudgetLimitService {
   BudgetLimitService({
+    required SettingsService settingsService,
     required NotificationsService notificationsService,
     required TransactionRepository transactionRepository,
-  })  : _notificationsService = notificationsService,
+  })  : _settingsService = settingsService,
+        _notificationsService = notificationsService,
         _transactionRepository = transactionRepository;
 
+  final SettingsService _settingsService;
   final NotificationsService _notificationsService;
   final TransactionRepository _transactionRepository;
 
@@ -17,7 +20,7 @@ class BudgetLimitService {
   Future<void> onDebitTransactionAdded(double addedAmount) async {
     if (addedAmount <= 0) return;
 
-    const limit = AppConstants.monthlyExpenseLimit;
+    final limit = _settingsService.monthlyLimit;
     final monthlyResult = await _transactionRepository.getMonthlyDebitTotal();
 
     if (monthlyResult.failure != null || monthlyResult.data == null) return;

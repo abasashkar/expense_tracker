@@ -2,6 +2,7 @@ import 'package:expense_tracker/core/database/database_helper.dart';
 import 'package:expense_tracker/core/network/api_client.dart';
 import 'package:expense_tracker/core/notifications/notifications_service.dart';
 import 'package:expense_tracker/core/services/budget_limit_service.dart';
+import 'package:expense_tracker/core/services/settings_service.dart';
 import 'package:expense_tracker/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:expense_tracker/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:expense_tracker/features/auth/data/repositories/auth_repository_impl.dart';
@@ -25,6 +26,7 @@ class AppInjection {
   AppInjection._();
 
   static late final ApiClient apiClient;
+  static late final SettingsService settingsService;
   static late final NotificationsService notificationsService;
   static late final BudgetLimitService budgetLimitService;
   static late final AuthRepository authRepository;
@@ -40,6 +42,7 @@ class AppInjection {
     final prefs = await SharedPreferences.getInstance();
 
     apiClient = ApiClient();
+    settingsService = SettingsService(prefs);
     notificationsService = NotificationsService();
     await notificationsService.init();
     await DatabaseHelper.instance.database;
@@ -61,6 +64,7 @@ class AppInjection {
     transactionRepository = TransactionRepositoryImpl(transactionLocal);
 
     budgetLimitService = BudgetLimitService(
+      settingsService: settingsService,
       notificationsService: notificationsService,
       transactionRepository: transactionRepository,
     );

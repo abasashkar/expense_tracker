@@ -4,4 +4,5 @@ class PrefsConstants {
   static const String authToken = 'auth_token';
   static const String nickname = 'nickname';
   static const String onboardingComplete = 'onboarding_complete';
+  static const String monthlyLimit = 'monthly_limit';
 }

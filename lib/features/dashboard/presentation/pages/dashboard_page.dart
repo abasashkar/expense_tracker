@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:expense_tracker/core/services/settings_service.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_shimmer.dart';
+import 'package:expense_tracker/features/dashboard/presentation/widgets/monthly_limit_card.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_tile.dart';
@@ -12,10 +14,12 @@ class DashboardPage extends StatelessWidget {
     super.key,
     required this.nickname,
     required this.onViewAllTransactions,
+    required this.settingsService,
   });
 
   final String nickname;
   final VoidCallback onViewAllTransactions;
+  final SettingsService settingsService;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +32,8 @@ class DashboardPage extends StatelessWidget {
             child: DashboardShimmer(),
           );
         }
+
+        final limit = settingsService.monthlyLimit;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
@@ -69,6 +75,11 @@ class DashboardPage extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 16),
+              MonthlyLimitCard(
+                spent: state.monthlyDebit,
+                limit: limit,
               ),
               const SizedBox(height: 28),
               Row(

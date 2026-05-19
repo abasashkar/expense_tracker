@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'package:expense_tracker/core/services/settings_service.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
+import 'package:expense_tracker/core/utils/currency_formatter.dart';
 import 'package:expense_tracker/features/categories/presentation/bloc/category_bloc.dart';
 import 'package:expense_tracker/features/sync/presentation/bloc/sync_bloc.dart';
 import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_bloc.dart';
@@ -11,9 +14,11 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({
     super.key,
     required this.nickname,
+    required this.settingsService,
   });
 
   final String nickname;
+  final SettingsService settingsService;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -21,18 +26,37 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController _categoryController;
+  late TextEditingController _limitController;
+  late double _currentLimit;
 
   @override
   void initState() {
     super.initState();
     _categoryController = TextEditingController();
+    _currentLimit = widget.settingsService.monthlyLimit;
+    _limitController = TextEditingController(
+      text: _currentLimit.toInt().toString(),
+    );
     context.read<CategoryBloc>().add(const CategoryLoadRequested());
   }
 
   @override
   void dispose() {
     _categoryController.dispose();
+    _limitController.dispose();
     super.dispose();
+  }
+
+  Future<void> _setLimit() async {
+    final value = double.tryParse(_limitController.text.trim());
+    if (value == null || value <= 0) return;
+    await widget.settingsService.setMonthlyLimit(value);
+    setState(() => _currentLimit = value);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Monthly limit updated')),
+      );
+    }
   }
 
   void _onCategoryDeleted() {
@@ -76,6 +100,56 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: AppTheme.textPrimary,
                 fontSize: 15,
               ),
+            ),
+          ),
+          const SizedBox(height: 28),
+          const Text(
+            'ALERT LIMIT (₹)',
+            style: TextStyle(
+              color: AppTheme.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _darkField(
+                  child: TextField(
+                    controller: _limitController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: const TextStyle(color: AppTheme.textPrimary),
+                    decoration: const InputDecoration(
+                      hintText: 'Amount ( ₹ )',
+                      border: InputBorder.none,
+                      isDense: true,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: _setLimit,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(80, 52),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                  child: const Text('Set'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Current Limit: ${CurrencyFormatter.format(_currentLimit)}',
+            style: const TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 14,
             ),
           ),
           const SizedBox(height: 28),
