@@ -20,4 +20,6 @@ abstract class AuthRepository {
   Future<({bool? data, Failure? failure})> isOnboardingComplete();
 
   Future<({bool? data, Failure? failure})> setOnboardingComplete();
+
+  Future<void> clearSession();
 }

@@ -18,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthVerifyOtpRequested>(_onVerifyOtpRequested);
     on<AuthCreateAccountRequested>(_onCreateAccountRequested);
     on<AuthBackToPhoneRequested>(_onBackToPhoneRequested);
+    on<AuthLogoutRequested>(_onLogoutRequested);
   }
 
   final AuthRepository _authRepository;
@@ -263,6 +264,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         status: AuthStatus.unauthenticated,
         clearOtpSession: true,
         clearError: true,
+      ),
+    );
+  }
+
+  Future<void> _onLogoutRequested(
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    await _authRepository.clearSession();
+    emit(
+      const AuthState(
+        status: AuthStatus.unauthenticated,
       ),
     );
   }

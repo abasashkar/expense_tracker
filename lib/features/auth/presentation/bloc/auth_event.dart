@@ -45,3 +45,7 @@ class AuthCreateAccountRequested extends AuthEvent {
 class AuthBackToPhoneRequested extends AuthEvent {
   const AuthBackToPhoneRequested();
 }
+
+class AuthLogoutRequested extends AuthEvent {
+  const AuthLogoutRequested();
+}

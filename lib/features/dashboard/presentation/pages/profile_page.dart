@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:expense_tracker/core/services/settings_service.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/core/utils/currency_formatter.dart';
+import 'package:expense_tracker/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:expense_tracker/features/categories/presentation/bloc/category_bloc.dart';
 import 'package:expense_tracker/features/sync/presentation/bloc/sync_bloc.dart';
 import 'package:expense_tracker/features/transactions/presentation/bloc/transaction_bloc.dart';
@@ -394,6 +395,40 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               );
             },
+          ),
+          const SizedBox(height: 28),
+          GestureDetector(
+            onTap: () {
+              context.read<AuthBloc>().add(const AuthLogoutRequested());
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Log Out',
+                    style: TextStyle(
+                      color: AppTheme.danger,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(
+                    Icons.power_settings_new,
+                    color: AppTheme.danger,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

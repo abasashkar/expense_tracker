@@ -131,4 +131,10 @@ class AuthRepositoryImpl implements AuthRepository {
       return (data: null, failure: const CacheFailure());
     }
   }
+
+  @override
+  Future<void> clearSession() async {
+    await _localDataSource.clearSession();
+    _apiClient.setAuthToken(null);
+  }
 }
