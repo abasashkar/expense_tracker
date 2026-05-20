@@ -22,20 +22,17 @@ class PendingSyncPage extends StatelessWidget {
               builder: (context, txState) {
                 final unsyncedCategories = catState.unsyncedCategories;
                 final unsyncedTransactions = txState.unsyncedTransactions;
-                final isLoading = (catState.status == CategoryStatus.loading &&
-                        catState.unsyncedCategories.isEmpty) ||
-                    (txState.status == TransactionStatus.loading &&
-                        txState.unsyncedTransactions.isEmpty);
+                final isLoading = (catState.status == CategoryStatus.loading && catState.unsyncedCategories.isEmpty) ||
+                    (txState.status == TransactionStatus.loading && txState.unsyncedTransactions.isEmpty);
 
-                final hasDeletionOnly = syncState.hasPendingWork &&
-                    unsyncedCategories.isEmpty &&
-                    unsyncedTransactions.isEmpty;
+                final hasDeletionOnly =
+                    syncState.hasPendingWork && unsyncedCategories.isEmpty && unsyncedTransactions.isEmpty;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                      padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
                       child: Row(
                         children: [
                           const Expanded(
@@ -90,15 +87,12 @@ class PendingSyncPage extends StatelessWidget {
                               ...unsyncedTransactions.map(
                                 (tx) => TransactionTile(
                                   transaction: tx,
-                                  onDelete: () => context
-                                      .read<TransactionBloc>()
-                                      .add(TransactionDeleteRequested(tx.id)),
+                                  onDelete: () =>
+                                      context.read<TransactionBloc>().add(TransactionDeleteRequested(tx.id)),
                                 ),
                               ),
                             ],
-                            if (!syncState.hasPendingWork &&
-                                unsyncedCategories.isEmpty &&
-                                unsyncedTransactions.isEmpty)
+                            if (!syncState.hasPendingWork && unsyncedCategories.isEmpty && unsyncedTransactions.isEmpty)
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 48),
                                 child: Center(

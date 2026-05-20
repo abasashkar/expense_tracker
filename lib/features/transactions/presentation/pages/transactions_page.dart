@@ -22,7 +22,7 @@ class TransactionsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 20, 16),
+              padding: const EdgeInsets.fromLTRB(12, 18, 20, 16),
               child: Row(
                 children: [
                   IconButton(
@@ -47,8 +47,7 @@ class TransactionsPage extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: state.status == TransactionStatus.loading &&
-                      state.allTransactions.isEmpty
+              child: state.status == TransactionStatus.loading && state.allTransactions.isEmpty
                   ? _buildShimmer()
                   : state.allTransactions.isEmpty
                       ? const Center(
@@ -64,9 +63,7 @@ class TransactionsPage extends StatelessWidget {
                             final tx = state.allTransactions[index];
                             return TransactionTile(
                               transaction: tx,
-                              onDelete: () => context
-                                  .read<TransactionBloc>()
-                                  .add(TransactionDeleteRequested(tx.id)),
+                              onDelete: () => context.read<TransactionBloc>().add(TransactionDeleteRequested(tx.id)),
                             );
                           },
                         ),

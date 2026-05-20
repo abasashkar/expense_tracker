@@ -21,7 +21,7 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppInjection.requestNotificationPermissions();
+      AppInjection.setupNotifications();
     });
   }
 

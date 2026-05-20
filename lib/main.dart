@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:expense_tracker/app.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/injection.dart';
@@ -37,7 +38,6 @@ Future<void> main() async {
   };
 }
 
-/// Shown when critical startup (e.g. database) fails instead of a blank screen.
 class StartupErrorApp extends StatelessWidget {
   const StartupErrorApp({super.key, required this.message});
 

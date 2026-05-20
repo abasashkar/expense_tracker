@@ -8,19 +8,18 @@ class NotificationsService {
   static const String _channelId = 'budget_limit_alerts';
   static const String _channelName = 'Budget Limit Alerts';
 
-  /// White silhouette on transparent — required for Android status bar (release).
-  static const String _androidIcon = 'ic_notification';
+  static const String _primaryAndroidIcon = 'ic_notification';
+  static const String _fallbackAndroidIcon = 'ic_notification_warning';
 
-  final FlutterLocalNotificationsPlugin _plugin =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
 
   bool _initialized = false;
   bool _permissionGranted = false;
+  String _resolvedAndroidIcon = _primaryAndroidIcon;
 
   bool get isReady => _initialized;
   bool get permissionGranted => _permissionGranted;
 
-  /// Plugin setup + channel creation. Safe to call before [runApp].
   Future<void> initialize() async {
     if (_initialized) return;
 
@@ -30,36 +29,38 @@ class NotificationsService {
       requestSoundPermission: false,
     );
 
-    try {
-      await _plugin.initialize(
-        const InitializationSettings(
-          android: AndroidInitializationSettings(_androidIcon),
-          iOS: iosSettings,
-        ),
-      );
-      await _createAndroidChannel();
-      _initialized = true;
-      debugPrint('Notifications: initialized (icon=$_androidIcon)');
-    } catch (error, stack) {
-      debugPrint('Notifications: initialize failed: $error\n$stack');
+    for (final icon in [_primaryAndroidIcon, _fallbackAndroidIcon]) {
+      try {
+        await _plugin.initialize(
+          InitializationSettings(
+            android: AndroidInitializationSettings(icon),
+            iOS: iosSettings,
+          ),
+        );
+        await _createAndroidChannel();
+        _resolvedAndroidIcon = icon;
+        _initialized = true;
+        debugPrint('Notifications: initialized (icon=$icon)');
+        return;
+      } catch (error, stack) {
+        debugPrint('Notifications: init ($icon) failed: $error\n$stack');
+      }
     }
+
+    debugPrint('Notifications: failed to initialize plugin');
   }
 
-  /// Request OS permission. Call after the first frame when an Activity exists.
   Future<bool> requestPermissions() async {
     if (!_initialized) {
       await initialize();
     }
     if (!_initialized) return false;
 
-    final androidPlugin =
-        _plugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
       try {
-        final granted =
-            await androidPlugin.requestNotificationsPermission() ?? false;
+        final granted = await androidPlugin.requestNotificationsPermission() ?? false;
         _permissionGranted = granted;
         debugPrint('Notifications: Android permission granted=$granted');
       } catch (error, stack) {
@@ -67,16 +68,14 @@ class NotificationsService {
           'Notifications: Android permission request failed: $error\n$stack',
         );
         try {
-          _permissionGranted =
-              await androidPlugin.areNotificationsEnabled() ?? false;
+          _permissionGranted = await androidPlugin.areNotificationsEnabled() ?? false;
         } catch (_) {
           _permissionGranted = false;
         }
       }
     }
 
-    final iosPlugin = _plugin.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+    final iosPlugin = _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
     if (iosPlugin != null) {
       try {
         final granted = await iosPlugin.requestPermissions(
@@ -98,14 +97,13 @@ class NotificationsService {
       _channelId,
       _channelName,
       description: 'Alerts when monthly spending exceeds your budget limit',
-      importance: Importance.high,
+      importance: Importance.max,
       playSound: true,
       enableVibration: true,
     );
 
     await _plugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 
@@ -115,19 +113,15 @@ class NotificationsService {
     }
     if (!_initialized) return false;
 
-    final androidPlugin =
-        _plugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
       final enabled = await androidPlugin.areNotificationsEnabled();
-      _permissionGranted = enabled ?? false;
-      if (!_permissionGranted) {
-        debugPrint(
-          'Notifications: blocked — OS notifications disabled or not granted',
-        );
+      if (enabled != false) {
+        _permissionGranted = true;
+        return true;
       }
-      return _permissionGranted;
+      return requestPermissions();
     }
 
     return _permissionGranted;
@@ -146,19 +140,18 @@ class NotificationsService {
     final limitText = limit.toStringAsFixed(0);
 
     const title = 'Monthly budget limit exceeded';
-    final body =
-        'You\'ve spent ₹$spentText this month (limit: ₹$limitText).';
+    final body = 'You\'ve spent ₹$spentText this month (limit: ₹$limitText).';
 
     final androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
-      channelDescription:
-          'Alerts when monthly spending exceeds your budget limit',
-      importance: Importance.high,
+      channelDescription: 'Alerts when monthly spending exceeds your budget limit',
+      importance: Importance.max,
       priority: Priority.high,
-      icon: _androidIcon,
+      icon: _resolvedAndroidIcon,
       playSound: true,
       enableVibration: true,
+      visibility: NotificationVisibility.public,
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: title,
@@ -171,14 +164,6 @@ class NotificationsService {
       presentSound: true,
     );
 
-    debugPrint(
-      'Notifications: show() id=$_budgetAlertId channel=$_channelId '
-      'icon=$_androidIcon title="$title"',
-    );
-    debugPrint(
-      'Notifications: show() body="$body" permissionGranted=$_permissionGranted',
-    );
-
     try {
       await _plugin.show(
         _budgetAlertId,
@@ -189,7 +174,6 @@ class NotificationsService {
           iOS: iosDetails,
         ),
       );
-      debugPrint('Notifications: show() completed');
     } catch (error, stack) {
       debugPrint('Notifications: show() failed: $error\n$stack');
     }

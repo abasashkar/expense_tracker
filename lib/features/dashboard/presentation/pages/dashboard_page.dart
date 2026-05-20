@@ -25,10 +25,9 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<TransactionBloc, TransactionState>(
       builder: (context, state) {
-        if (state.status == TransactionStatus.loading &&
-            state.recentTransactions.isEmpty) {
+        if (state.status == TransactionStatus.loading && state.recentTransactions.isEmpty) {
           return const SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(20, 8, 20, 120),
+            padding: EdgeInsets.fromLTRB(20, 18, 20, 120),
             child: DashboardShimmer(),
           );
         }
@@ -94,9 +93,7 @@ class DashboardPage extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: state.recentTransactions.isEmpty
-                        ? null
-                        : onViewAllTransactions,
+                    onTap: state.recentTransactions.isEmpty ? null : onViewAllTransactions,
                     child: Text(
                       'View all',
                       style: TextStyle(
@@ -126,9 +123,7 @@ class DashboardPage extends StatelessWidget {
                 ...state.recentTransactions.map(
                   (tx) => TransactionTile(
                     transaction: tx,
-                    onDelete: () => context
-                        .read<TransactionBloc>()
-                        .add(TransactionDeleteRequested(tx.id)),
+                    onDelete: () => context.read<TransactionBloc>().add(TransactionDeleteRequested(tx.id)),
                   ),
                 ),
             ],
