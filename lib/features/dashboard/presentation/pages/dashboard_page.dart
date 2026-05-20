@@ -27,8 +27,8 @@ class DashboardPage extends StatelessWidget {
       builder: (context, state) {
         if (state.status == TransactionStatus.loading &&
             state.recentTransactions.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(20),
+          return const SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(20, 8, 20, 120),
             child: DashboardShimmer(),
           );
         }

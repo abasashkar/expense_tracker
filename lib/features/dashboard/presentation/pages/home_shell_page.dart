@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:expense_tracker/core/services/settings_service.dart';
-import 'package:expense_tracker/injection.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/core/widgets/app_bottom_nav.dart';
 import 'package:expense_tracker/features/categories/presentation/bloc/category_bloc.dart';
@@ -40,7 +39,6 @@ class _HomeShellPageState extends State<HomeShellPage> {
     context.read<TransactionBloc>().add(const TransactionLoadDashboardRequested());
     context.read<CategoryBloc>().add(const CategoryLoadRequested());
     context.read<SyncBloc>().add(const SyncPendingStatusRequested());
-    AppInjection.requestNotificationPermissions();
   }
 
   void _refreshSyncPendingStatus() {
